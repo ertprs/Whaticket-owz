@@ -217,7 +217,7 @@ const LoggedInLayout = ({ children }) => {
             noWrap
             className={classes.title}
           >
-            OwenZap
+            Central - Nsc Sistemas
           </Typography>
           {user.id && <NotificationsPopOver />}
 

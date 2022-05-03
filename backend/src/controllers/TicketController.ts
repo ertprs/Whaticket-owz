@@ -97,7 +97,7 @@ export const update = async (
   
   if(ticketData.transf) {
       const {name} = await ShowQueueService(ticketData.queueId);
-      const msgtxt = "* Mensagem Automática:* Chat tranferido para o departamento *"+name+"*\n  Aguarde um momento, iremos atende-lo(a)!";
+      const msgtxt = "* Mensagem Automática:* Chat tranferido para  *"+name+"*\n  Aguarde um momento, iremos atende-lo(a)!";
       await SendWhatsAppMessage({body: msgtxt, ticket});
   }
 

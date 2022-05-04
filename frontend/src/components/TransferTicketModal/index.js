@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect } from "react";
 import { useHistory } from "react-router-dom";
 
 import Button from "@material-ui/core/Button";
@@ -23,9 +23,6 @@ import api from "../../services/api";
 import ButtonWithSpinner from "../ButtonWithSpinner";
 import toastError from "../../errors/toastError";
 import useQueues from "../../hooks/useQueues";
-import useWhatsApps from "../../hooks/useWhatsApps";
-import { AuthContext } from "../../context/Auth/AuthContext";
-import { Can } from "../Can";
 
 const useStyles = makeStyles((theme) => ({
   maxWidth: {
@@ -37,7 +34,7 @@ const filterOptions = createFilterOptions({
 	trim: true,
 });
 
-const TransferTicketModal = ({ modalOpen, onClose, ticketid, ticketWhatsappId }) => {
+const TransferTicketModal = ({ modalOpen, onClose, ticketid }) => {
 	const history = useHistory();
 	const [options, setOptions] = useState([]);
 	const [queues, setQueues] = useState([]);
@@ -46,12 +43,8 @@ const TransferTicketModal = ({ modalOpen, onClose, ticketid, ticketWhatsappId })
 	const [searchParam, setSearchParam] = useState("");
 	const [selectedUser, setSelectedUser] = useState(null);
 	const [selectedQueue, setSelectedQueue] = useState('');
-	const [selectedWhatsapp, setSelectedWhatsapp] = useState(ticketWhatsappId);
 	const classes = useStyles();
 	const { findAll: findAllQueues } = useQueues();
-	const { loadingWhatsapps, whatsApps } = useWhatsApps();
-
-	const { user: loggedInUser } = useContext(AuthContext);
 
 	useEffect(() => {
 		const loadQueues = async () => {
@@ -99,22 +92,26 @@ const TransferTicketModal = ({ modalOpen, onClose, ticketid, ticketWhatsappId })
 		if (!ticketid) return;
 		setLoading(true);
 		try {
-            let data = {};
-            if (selectedUser) {
-                data.userId = selectedUser.id
-            }
-            if (selectedQueue && selectedQueue !== null) {
-                data.queueId = selectedQueue
-                if (!selectedUser) {
-                    data.status = 'pending';
-                    data.userId = null;
-                    data.transf = true;
-                }
-            }
-            await api.put(`/tickets/${ticketid}`, data);
-            setLoading(false);
-            history.push(`/tickets`);
-        } catch (err) {
+			let data = {};
+
+			if (selectedUser) {
+				data.userId = selectedUser.id
+			}
+
+			if (selectedQueue && selectedQueue !== null) {
+				data.queueId = selectedQueue
+
+				if (!selectedUser) {
+					data.status = 'pending';
+					data.userId = null;
+				}
+			}
+
+			await api.put(`/tickets/${ticketid}`, data);
+
+			setLoading(false);
+			history.push(`/tickets`);
+		} catch (err) {
 			setLoading(false);
 			toastError(err);
 		}
@@ -127,7 +124,7 @@ const TransferTicketModal = ({ modalOpen, onClose, ticketid, ticketWhatsappId })
 					{i18n.t("transferTicketModal.title")}
 				</DialogTitle>
 				<DialogContent dividers>
-					<setSelectedUser
+					<Autocomplete
 						style={{ width: 300, marginBottom: 20 }}
 						getOptionLabel={option => `${option.name}`}
 						onChange={(e, newValue) => {
@@ -180,24 +177,6 @@ const TransferTicketModal = ({ modalOpen, onClose, ticketid, ticketWhatsappId })
 							))}
 						</Select>
 					</FormControl>
-					<Can
-						role={loggedInUser.profile}
-						perform="ticket-options:transferWhatsapp"
-						yes={() => (!loadingWhatsapps && 
-							<FormControl variant="outlined" className={classes.maxWidth} style={{ marginTop: 20 }}>
-								<InputLabel>{i18n.t("transferTicketModal.fieldConnectionLabel")}</InputLabel>
-								<Select
-									value={selectedWhatsapp}
-									onChange={(e) => setSelectedWhatsapp(e.target.value)}
-									label={i18n.t("transferTicketModal.fieldConnectionPlaceholder")}
-								>
-									{whatsApps.map((whasapp) => (
-										<MenuItem key={whasapp.id} value={whasapp.id}>{whasapp.name}</MenuItem>
-									))}
-								</Select>
-							</FormControl>
-						)}
-					/>
 				</DialogContent>
 				<DialogActions>
 					<Button

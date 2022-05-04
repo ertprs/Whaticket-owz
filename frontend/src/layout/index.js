@@ -217,7 +217,7 @@ const LoggedInLayout = ({ children }) => {
             noWrap
             className={classes.title}
           >
-            Central - Nsc Sistemas
+            Owenzap By Whaticket
           </Typography>
           {user.id && <NotificationsPopOver />}
 

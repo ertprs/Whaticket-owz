@@ -180,29 +180,62 @@ const verifyQueue = async (
     await verifyMessage(sentMessage, ticket, contact);
   } else {
     let options = "";
-
-    queues.forEach((queue, index) => {
+//INICIO DO CODIGO HORARIO DE ATENDIMENTO
+        queues.forEach((queue, index) => {
       options += `*${index + 1}* - ${queue.name}\n`;
     });
+    
+const Hr = new Date();
+const hh: number = Hr.getHours()*24*60;
+const mm: number = Hr.getMinutes()*24;
+const ss: number = Hr.getSeconds();
+const hora = hh+mm+ss;
 
-    const body = formatBody(`\u200e${greetingMessage}\n${options}`, contact);
+//HORA QUE PARA DE ENVIAR MENSAGEM FORA DE HORARIO DE ATENDIMENTO
+const inicio = '08:00:00'
+const hhinicio = Number(inicio.split(':')[0])*24*60;
+const mminicio = Number(inicio.split(':')[1])*24;
+const ssinicio = Number(inicio.split(':')[2]);
+const horainicio = hhinicio+mminicio+ssinicio;
 
+//HORA QUE COMEÇA A ENVIAR MENSAGEM FORA DE HORARIO DE ATENDIMENTO
+const terminio = '18:00:00'
+const hhterminio = Number(terminio.split(':')[0])*24*60;
+const mmterminio = Number(terminio.split(':')[1])*24;
+const ssterminio = Number(terminio.split(':')[2]);
+const horaterminio = hhterminio+mmterminio+ssterminio;
+
+
+if (hora < horainicio || hora > horaterminio ){
+//MENU PRINCIPAL
+    const body = formatBody(`
+Olá, {{name}}, estamos fora do horario de atendimento, por favor nós retorne dentro do horario, obrigado.
+`, contact);
     const debouncedSentMessage = debounce(
       async () => {
-        const sentMessage = await wbot.sendMessage(
-          `${contact.number}@c.us`,
-          body
-        );
+        const sentMessage = await wbot.sendMessage(`${contact.number}@c.us`, body);
         verifyMessage(sentMessage, ticket, contact);
       },
       3000,
       ticket.id
     );
-
+    debouncedSentMessage();
+} else {
+    const body = formatBody(`\u200e${greetingMessage}\n${options}`, contact);
+    const debouncedSentMessage = debounce(
+      async () => {
+        const sentMessage = await wbot.sendMessage(`${contact.number}@c.us`, body);
+        verifyMessage(sentMessage, ticket, contact);
+      },
+      3000,
+      ticket.id
+    );
     debouncedSentMessage();
   }
+ }
 };
 
+//FIM DO CODIGO HORARIO DE ATENDIMENTO
 const isValidMsg = (msg: WbotMessage): boolean => {
   if (msg.from === "status@broadcast") return false;
   if (
@@ -213,9 +246,9 @@ const isValidMsg = (msg: WbotMessage): boolean => {
     msg.type === "image" ||
     msg.type === "document" ||
     msg.type === "vcard" ||
-    //msg.type === "multi_vcard" ||
+    msg.type === "multi_vcard" ||
     msg.type === "sticker" ||
-    msg.type === "location"
+    msg.type === "location" ||
   )
     return true;
   return false;

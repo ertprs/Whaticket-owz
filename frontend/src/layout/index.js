@@ -217,7 +217,7 @@ const LoggedInLayout = ({ children }) => {
             noWrap
             className={classes.title}
           >
-            Owenzap By Whaticket
+            Owenzap | Seu WhatsApp Web em vários computadores!
           </Typography>
           {user.id && <NotificationsPopOver />}
 

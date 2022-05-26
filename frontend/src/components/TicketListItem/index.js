@@ -20,6 +20,7 @@ import VisibilityIcon from '@material-ui/icons/Visibility';
 import ReplayIcon from '@material-ui/icons/Replay';
 import StopIcon from '@material-ui/icons/Stop';
 import api from "../../services/api";
+import ClearOutlinedIcon from '@material-ui/icons/ClearOutlined';
 //import ButtonWithSpinner from "../ButtonWithSpinner";
 import MarkdownWrapper from "../MarkdownWrapper";
 import { Tooltip } from "@material-ui/core";
@@ -176,7 +177,6 @@ const TicketListItem = ({ ticket }) => {
 		try {
 			await api.put(`/tickets/${id}`, {
 				status: "pending",
-				userId: user?.id,
 			});
 		} catch (err) {
 			setLoading(false);
@@ -202,7 +202,7 @@ const TicketListItem = ({ ticket }) => {
 		if (isMounted.current) {
 			setLoading(false);
 		}
-		history.push(`/tickets/${id}`);
+		//history.push(`/tickets/${id}`);
 	};		
 
 	
@@ -310,6 +310,14 @@ const TicketListItem = ({ ticket }) => {
 					<VisibilityIcon />
 				  	</IconButton>								
 				)}	
+				 {ticket.status === "pending" && (
+					<IconButton
+					className={classes.bottomButton}
+					color="primary"
+					onClick={e => handleClosedTicket(ticket.id)} >
+					<ClearOutlinedIcon />
+				  	</IconButton>								
+				)}				
 				{ticket.status === "open" && (
 					<IconButton
 					className={classes.bottomButton}
@@ -323,9 +331,9 @@ const TicketListItem = ({ ticket }) => {
 					className={classes.bottomButton}
 					color="primary"
 					onClick={e => handleClosedTicket(ticket.id)} >
-					<StopIcon />
+					<ClearOutlinedIcon />
 				  	</IconButton>								
-				)}		
+				)}						
 				{ticket.status === "closed" && (
 					<IconButton
 					className={classes.bottomButton}
